@@ -1,7 +1,7 @@
-package main
+// package main
 
-import "github.com/pmollerus23/gogate/internal/client"
+// import "github.com/pmollerus23/gogate/internal/client"
 
-func main() {
-	client.RunClient()
-}
+// func main() {
+// 	client.RunClient()
+// }
