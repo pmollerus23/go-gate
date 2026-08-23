@@ -8,12 +8,6 @@ import (
 	"os"
 )
 
-type Client struct {
-	server_ip_address    string
-	client_input_buffer  string
-	server_output_buffer *[]byte
-}
-
 func RunClient() {
 	fmt.Println("start client.")
 	conn, err := net.Dial("tcp", "127.0.0.1:8080")
