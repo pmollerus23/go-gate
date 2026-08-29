@@ -6,9 +6,12 @@ import (
 )
 
 func TestBackendPoolNextUsesRoundRobin(t *testing.T) {
-	pool := BackendPool{
-		backends: []string{"backend-a", "backend-b", "backend-c"},
-	}
+
+	pool := NewBackendPool([]string{
+		"backend-a",
+		"backend-b",
+		"backend-c",
+	})
 
 	expected := []string{
 		"backend-a",
@@ -23,6 +26,7 @@ func TestBackendPoolNextUsesRoundRobin(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Next() call %d: %v", i, err)
 		}
+
 		if got != want {
 			t.Errorf("Next() call %d = %q, want %q", i, got, want)
 		}

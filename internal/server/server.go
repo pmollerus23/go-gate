@@ -9,7 +9,10 @@ import (
 	"sync"
 )
 
-const backendAddress = "127.0.0.1:8081"
+var backendAddresses = []string{
+	"127.0.0.1:8081",
+	"127.0.0.1:8082",
+}
 
 func Run(ctx context.Context) error {
 	fmt.Println("Running server ...")
@@ -19,10 +22,12 @@ func Run(ctx context.Context) error {
 	}
 	defer ln.Close()
 
-	return serve(ctx, ln, backendAddress)
+	pool := NewBackendPool(backendAddresses)
+
+	return serve(ctx, ln, pool)
 }
 
-func serve(ctx context.Context, ln net.Listener, backendAddress string) error {
+func serve(ctx context.Context, ln net.Listener, pool *BackendPool) error {
 	go func() {
 		<-ctx.Done()
 		ln.Close()
@@ -48,7 +53,7 @@ func serve(ctx context.Context, ln net.Listener, backendAddress string) error {
 		go func() {
 			defer wg.Done()
 
-			if err := handleConnection(conn, ctx, backendAddress); err != nil {
+			if err := handleConnection(conn, ctx, pool); err != nil {
 				log.Printf("handle connection: %v", err)
 			}
 		}()
@@ -63,9 +68,14 @@ func serve(ctx context.Context, ln net.Listener, backendAddress string) error {
 func handleConnection(
 	conn net.Conn,
 	ctx context.Context,
-	backendAddress string,
+	pool *BackendPool,
 ) error {
 	defer conn.Close()
+
+	backendAddress, err := pool.Next()
+	if err != nil {
+		return fmt.Errorf("select backend: %w", err)
+	}
 
 	backendConn, err := (&net.Dialer{}).DialContext(
 		ctx,

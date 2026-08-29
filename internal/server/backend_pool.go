@@ -26,3 +26,11 @@ func (p *BackendPool) Next() (string, error) {
 
 	return backend, nil
 }
+
+func NewBackendPool(backends []string) *BackendPool {
+	copied := append([]string(nil), backends...)
+
+	return &BackendPool{
+		backends: copied,
+	}
+}

@@ -30,9 +30,10 @@ func TestServeForwardsTrafficToBackend(t *testing.T) {
 
 	proxyListener := listenOnRandomPort(t)
 	ctx, cancel := context.WithCancel(context.Background())
+	pool := NewBackendPool([]string{backendListener.Addr().String()})
 	proxyDone := make(chan error, 1)
 	go func() {
-		proxyDone <- serve(ctx, proxyListener, backendListener.Addr().String())
+		proxyDone <- serve(ctx, proxyListener, pool)
 	}()
 
 	client, err := net.Dial("tcp", proxyListener.Addr().String())
@@ -79,9 +80,10 @@ func TestServeHandlesUnavailableBackend(t *testing.T) {
 
 	proxyListener := listenOnRandomPort(t)
 	ctx, cancel := context.WithCancel(context.Background())
+	pool := NewBackendPool([]string{unavailableAddress})
 	proxyDone := make(chan error, 1)
 	go func() {
-		proxyDone <- serve(ctx, proxyListener, unavailableAddress)
+		proxyDone <- serve(ctx, proxyListener, pool)
 	}()
 
 	client, err := net.Dial("tcp", proxyListener.Addr().String())
@@ -136,9 +138,10 @@ func TestServeForwardsArbitraryBytes(t *testing.T) {
 
 	proxyListener := listenOnRandomPort(t)
 	ctx, cancel := context.WithCancel(context.Background())
+	pool := NewBackendPool([]string{backendListener.Addr().String()})
 	proxyDone := make(chan error, 1)
 	go func() {
-		proxyDone <- serve(ctx, proxyListener, backendListener.Addr().String())
+		proxyDone <- serve(ctx, proxyListener, pool)
 	}()
 
 	client, err := net.Dial("tcp", proxyListener.Addr().String())
@@ -206,9 +209,10 @@ func TestServeHandlesConcurrentClients(t *testing.T) {
 
 	proxyListener := listenOnRandomPort(t)
 	ctx, cancel := context.WithCancel(context.Background())
+	pool := NewBackendPool([]string{backendListener.Addr().String()})
 	proxyDone := make(chan error, 1)
 	go func() {
-		proxyDone <- serve(ctx, proxyListener, backendListener.Addr().String())
+		proxyDone <- serve(ctx, proxyListener, pool)
 	}()
 
 	const clientCount = 10
